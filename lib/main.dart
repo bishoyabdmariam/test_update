@@ -161,14 +161,16 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Text('Version ${info.version} is required to continue.'),
               const SizedBox(height: 8),
-              Text(info.notes.isEmpty ? 'Please update to continue.' : info.notes),
+              Text(
+                info.notes.isEmpty ? 'Please update to continue.' : info.notes,
+              ),
               if (_progress != null) ...[
                 const SizedBox(height: 16),
                 LinearProgressIndicator(value: _progress),
                 const SizedBox(height: 8),
                 Text(
                   _progress != null
-                      ? 'Downloading ${( (_progress ?? 0) * 100).toStringAsFixed(0)}%'
+                      ? 'Downloading ${((_progress ?? 0) * 100).toStringAsFixed(0)}%'
                       : 'Preparing download...',
                 ),
               ],
@@ -192,9 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
         : 'Loading...';
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Update tester'),
-      ),
+      appBar: AppBar(title: const Text('Update tester')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -224,7 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             const Spacer(),
             const Text(
-              'Manifest source:\nhttps://raw.githubusercontent.com/your-org/your-repo/main/update.json',
+              'Manifest source:\nhttps://raw.githubusercontent.com/bishoyabdmariam/test_update/main/update.json',
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
