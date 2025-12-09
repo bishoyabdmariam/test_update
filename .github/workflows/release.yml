@@ -185,11 +185,15 @@ jobs:
       - name: Commit manifest to main (for raw URL consumption)
         env:
           VERSION: ${{ github.ref_name }}
+          BUILD_NUM: ${{ github.run_number }}
         run: |
           VERSION_STRIPPED="${VERSION#v}"
+          sed -i "s/^version: .*/version: ${VERSION_STRIPPED}+${BUILD_NUM}/" pubspec.yaml
+          sed -i "s/^\s*versionCode = .*/        versionCode = ${BUILD_NUM}/" android/app/build.gradle.kts
+          sed -i "s/^\s*versionName = .*/        versionName = \"${VERSION_STRIPPED}\"/" android/app/build.gradle.kts
           git config user.email "actions@github.com"
           git config user.name "github-actions"
-          git add update.json
+          git add update.json pubspec.yaml android/app/build.gradle.kts
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
