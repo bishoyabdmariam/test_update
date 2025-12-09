@@ -1,16 +1,16 @@
 {
   "android": {
-    "version": "1.0.3",
+    "version": "1.0.5",
     "mandatory": false,
-    "notes": "Release 1.0.3",
-    "url": "https://github.com/bishoyabdmariam/test_update/releases/download/v1.0.3/app-release.apk",
-    "sha256": "88c147829b37946d0bdc6c0f36de3f27dd12bec50075f5ed30545eaeaa8e1a9e"
+    "notes": "Release 1.0.5",
+    "url": "https://github.com/bishoyabdmariam/test_update/releases/download/v1.0.5/app-release.apk",
+    "sha256": "8bd7b28dc19837406d87393a8b3d5753a3a857a7d71ce67ff803df056e07511e"
   },
   "windows": {
-    "version": "1.0.3",
+    "version": "1.0.5",
     "mandatory": false,
-    "notes": "Release 1.0.3",
-    "url": "https://github.com/bishoyabdmariam/test_update/releases/download/v1.0.3/test_update_windows.zip",
-    "sha256": "a31001a01b8b4acacb5eb2ae984bd0d76b5d1827bd4b12a6353665ce079f29f2"
+    "notes": "Release 1.0.5",
+    "url": "https://github.com/bishoyabdmariam/test_update/releases/download/v1.0.5/test_update_windows.zip",
+    "sha256": "ec07de8575502971454fcef15a00130b5113fe557318ad3a697df6e877be78e4"
   }
 }
