@@ -9,9 +9,9 @@ import 'package:pub_semver/pub_semver.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Public GitHub manifest location. Replace with your repo.
+/// Public GitHub manifest location.
 const String manifestUrl =
-    'https://raw.githubusercontent.com/your-org/your-repo/main/update.json';
+    'https://raw.githubusercontent.com/bishoyabdmariam/test_update/main/update.json';
 
 enum UpdateKind { none, optional, mandatory }
 
