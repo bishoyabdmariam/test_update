@@ -11,7 +11,7 @@ permissions:
 env:
   FLUTTER_CHANNEL: stable
   ANDROID_ARTIFACT: app-release.apk
-  WINDOWS_ARTIFACT: test_update_windows.zip
+  WINDOWS_ARTIFACT: MyApp_Setup.exe
 
 jobs:
   build-android:
@@ -75,17 +75,44 @@ jobs:
       - name: Build Windows runner
         run: flutter build windows --release
 
-      - name: Package Windows build
+      - name: Create Inno Setup script
         shell: pwsh
         run: |
-          $src = "build/windows/x64/runner/Release"
-          Compress-Archive -Path "$src/*" -DestinationPath "${{ env.WINDOWS_ARTIFACT }}"
+          $OutputDir = "$PWD\installer"
+          New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+          $iss = @(
+            '[Setup]',
+            'AppName=Test Update',
+            'AppVersion=1.0',
+            'AppId={{7F1E7C0B-65E4-4B4F-9E8D-1234567890AB}}',
+            'DefaultDirName={pf}\Test Update',
+            "OutputDir=$OutputDir",
+            'OutputBaseFilename=${{ env.WINDOWS_ARTIFACT }}',
+            'Compression=lzma',
+            'SolidCompression=yes',
+            'DisableDirPage=yes',
+            'DisableProgramGroupPage=yes',
+            'ArchitecturesAllowed=x64',
+            'ArchitecturesInstallIn64BitMode=x64',
+            '',
+            '[Files]',
+            'Source:"build/windows/x64/runner/Release\*"; DestDir:"{app}"; Flags: recursesubdirs ignoreversion',
+            '',
+            '[Icons]',
+            'Name:"{autoprograms}\Test Update"; Filename:"{app}\test_update.exe"'
+          ) -join "`n"
+          Set-Content -Path "installer.iss" -Value $iss
+
+      - name: Build Windows installer (Inno Setup)
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-zip
-          path: ${{ env.WINDOWS_ARTIFACT }}
+          path: installer/${{ env.WINDOWS_ARTIFACT }}
 
   release:
     needs: [build-android, build-windows]
@@ -128,7 +155,7 @@ jobs:
               "version": "__VERSION__",
               "mandatory": false,
               "notes": "Release __VERSION__",
-              "url": "https://github.com/__REPO__/releases/download/__TAG__/test_update_windows.zip",
+              "url": "https://github.com/__REPO__/releases/download/__TAG__/MyApp_Setup.exe",
               "sha256": "__WINDOWS_SHA__"
             }
           }
