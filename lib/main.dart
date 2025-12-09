@@ -200,9 +200,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Current version: $versionLabel'),
+            SelectableText('Current version: $versionLabel'),
             const SizedBox(height: 12),
-            Text('Status: $_status'),
+            SelectableText('Status: $_status'),
             const SizedBox(height: 16),
             if (_installing || _checking)
               LinearProgressIndicator(value: _progress),
@@ -223,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             const Spacer(),
-            const Text(
+            const SelectableText(
               'Manifest source:\nhttps://raw.githubusercontent.com/bishoyabdmariam/test_update/main/update.json',
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
