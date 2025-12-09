@@ -29,6 +29,8 @@ jobs:
         run: |
           VERSION_STRIPPED="${VERSION#v}"
           sed -i "s/^version: .*/version: ${VERSION_STRIPPED}+${BUILD_NUM}/" pubspec.yaml
+          sed -i "s/^\\s*versionCode = .*/        versionCode = ${BUILD_NUM}/" android/app/build.gradle.kts
+          sed -i "s/^\\s*versionName = .*/        versionName = \"${VERSION_STRIPPED}\"/" android/app/build.gradle.kts
 
       - uses: subosito/flutter-action@v2
         with:
