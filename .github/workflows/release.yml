@@ -1,0 +1,152 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_CHANNEL: stable
+  ANDROID_ARTIFACT: app-release.apk
+  WINDOWS_ARTIFACT: test_update_windows.zip
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: build/app/outputs/flutter-apk/${{ env.ANDROID_ARTIFACT }}
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows runner
+        run: flutter build windows --release
+
+      - name: Package Windows build
+        shell: pwsh
+        run: |
+          $src = "build/windows/x64/runner/Release"
+          Compress-Archive -Path "$src/*" -DestinationPath "${{ env.WINDOWS_ARTIFACT }}"
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: ${{ env.WINDOWS_ARTIFACT }}
+
+  release:
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Move artifacts to working dir
+        run: |
+          mv artifacts/android-apk/${ANDROID_ARTIFACT} .
+          mv artifacts/windows-zip/${WINDOWS_ARTIFACT} .
+
+      - name: Compute checksums
+        run: |
+          sha256sum "${ANDROID_ARTIFACT}" > android.sha256
+          sha256sum "${WINDOWS_ARTIFACT}" > windows.sha256
+
+      - name: Build update manifest
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          VERSION_STRIPPED="${VERSION#v}"
+          cat > update.json <<'EOF'
+          {
+            "android": {
+              "version": "__VERSION__",
+              "mandatory": false,
+              "notes": "Release __VERSION__",
+              "url": "https://github.com/__REPO__/releases/download/__TAG__/app-release.apk",
+              "sha256": "__ANDROID_SHA__"
+            },
+            "windows": {
+              "version": "__VERSION__",
+              "mandatory": false,
+              "notes": "Release __VERSION__",
+              "url": "https://github.com/__REPO__/releases/download/__TAG__/test_update_windows.zip",
+              "sha256": "__WINDOWS_SHA__"
+            }
+          }
+          EOF
+
+          ANDROID_SHA=$(cut -d' ' -f1 android.sha256)
+          WINDOWS_SHA=$(cut -d' ' -f1 windows.sha256)
+
+          sed -i "s#__VERSION__#${VERSION_STRIPPED}#g" update.json
+          sed -i "s#__TAG__#${VERSION}#g" update.json
+          sed -i "s#__REPO__#${GITHUB_REPOSITORY}#g" update.json
+          sed -i "s#__ANDROID_SHA__#${ANDROID_SHA}#g" update.json
+          sed -i "s#__WINDOWS_SHA__#${WINDOWS_SHA}#g" update.json
+
+      - name: Upload release assets
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          artifacts: "${{ env.ANDROID_ARTIFACT }},${{ env.WINDOWS_ARTIFACT }},update.json"
+          allowUpdates: true
+          replacesArtifacts: true
+          body: "Automated release for ${{ github.ref_name }}"
+
+      - name: Commit manifest to main (for raw URL consumption)
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          VERSION_STRIPPED="${VERSION#v}"
+          cp update.json ./update.json
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git add update.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update manifest ${VERSION_STRIPPED}"
+            git push origin HEAD:main
+          fi
+
