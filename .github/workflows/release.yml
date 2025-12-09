@@ -139,7 +139,6 @@ jobs:
           VERSION: ${{ github.ref_name }}
         run: |
           VERSION_STRIPPED="${VERSION#v}"
-          cp update.json ./update.json
           git config user.email "actions@github.com"
           git config user.name "github-actions"
           git add update.json
