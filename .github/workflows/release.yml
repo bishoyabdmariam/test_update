@@ -13,6 +13,9 @@ env:
   ANDROID_ARTIFACT: app-release.apk
   WINDOWS_ARTIFACT: MyApp_Setup.exe
   WINDOWS_BASE: MyApp_Setup
+  ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+  ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+  ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
 
 jobs:
   build-android:
@@ -21,6 +24,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Prepare Android keystore
+        run: |
+          echo "$ANDROID_KEYSTORE_B64" | base64 -d > release.keystore
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
 
       - name: Set app version from tag
         env:

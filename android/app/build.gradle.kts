@@ -30,11 +30,21 @@ android {
         versionName = "1.0.13"
     }
 
+    signingConfigs {
+        create("release") {
+            // Provide these via env vars (CI) or locally exported env vars.
+            val keystorePath = System.getenv("ANDROID_KEYSTORE_PATH") ?: "release.keystore"
+            storeFile = file(keystorePath)
+            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Use release signing if provided; otherwise fall back to debug for local runs.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
 }
