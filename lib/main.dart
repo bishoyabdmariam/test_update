@@ -221,7 +221,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ? 'Install mandatory update'
                       : 'Install optional update',
                 ),
-              ), 
+              ),
             const Spacer(),
             const SelectableText(
               'Manifest source:\nhttps://raw.githubusercontent.com/bishoyabdmariam/test_update/main/update.json',
