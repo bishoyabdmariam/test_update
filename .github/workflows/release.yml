@@ -13,7 +13,7 @@ env:
   ANDROID_ARTIFACT: app-release.apk
   WINDOWS_ARTIFACT: MyApp_Setup.exe
   WINDOWS_BASE: MyApp_Setup
-  ANDROID_KEYSTORE_PATH: android/app/release.keystore
+  ANDROID_KEYSTORE_PATH: release.keystore
   ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
   ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
   ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
